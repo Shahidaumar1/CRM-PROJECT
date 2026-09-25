@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.venv/
+
+# Database
+*.db
+instance/
+
+# Environment / secrets
+.env
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Uploaded files (keep folder, ignore contents)
+static/uploads/*
+!static/uploads/.gitkeep

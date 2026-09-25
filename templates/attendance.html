@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Attendance — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Attendance</h1>
+    <div class="sub">{{ today.strftime('%A, %d %B %Y') }}</div>
+  </div>
+  <a href="{{ url_for('export_attendance') }}" class="btn">Export CSV</a>
+</div>
+
+<div class="panel">
+  <h2>Your Check In / Check Out</h2>
+  <div class="checkclock">
+    <div>
+      {% if my_today and my_today.check_in %}
+        <div class="time-big">{{ my_today.check_in.strftime('%I:%M %p') }}</div>
+        <div class="time-sub">Checked in{% if my_today.check_out %} · Checked out at {{ my_today.check_out.strftime('%I:%M %p') }} · {{ my_today.hours_worked }} hrs worked{% else %} · Still working{% endif %}</div>
+      {% else %}
+        <div class="time-big">—:—</div>
+        <div class="time-sub">You haven't checked in today</div>
+      {% endif %}
+    </div>
+    <div style="display:flex; gap:10px;">
+      <form method="POST" action="{{ url_for('check_in') }}">
+        <button type="submit" class="btn btn-primary" {% if my_today and my_today.check_in %}disabled{% endif %}>Check In</button>
+      </form>
+      <form method="POST" action="{{ url_for('check_out') }}">
+        <button type="submit" class="btn btn-danger" {% if not my_today or not my_today.check_in or my_today.check_out %}disabled{% endif %}>Check Out</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if current_user.is_admin %}
+<div class="panel" style="padding:0;">
+  <h2 style="padding:20px 22px 0;">Team — Today</h2>
+  <table class="data">
+    <thead><tr><th>Employee</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for a, u in team_today %}
+      <tr>
+        <td><strong>{{ u.name }}</strong></td>
+        <td>{{ a.check_in.strftime('%I:%M %p') if a.check_in else '—' }}</td>
+        <td>{{ a.check_out.strftime('%I:%M %p') if a.check_out else '—' }}</td>
+        <td>{{ a.hours_worked }}</td>
+        <td><span class="badge badge-{{ a.status|replace(' ', '') }}">{{ a.status }}</span></td>
+      </tr>
+      {% endfor %}
+      {% for e in not_checked_in %}
+      <tr>
+        <td><strong>{{ e.name }}</strong></td>
+        <td>—</td><td>—</td><td>0</td>
+        <td><span class="badge badge-Absent">Absent</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="panel" style="padding:0;">
+  <h2 style="padding:20px 22px 0;">Your Recent History</h2>
+  {% if my_history %}
+  <table class="data">
+    <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for a in my_history %}
+      <tr>
+        <td>{{ a.date.strftime('%d %b %Y') }}</td>
+        <td>{{ a.check_in.strftime('%I:%M %p') if a.check_in else '—' }}</td>
+        <td>{{ a.check_out.strftime('%I:%M %p') if a.check_out else '—' }}</td>
+        <td>{{ a.hours_worked }}</td>
+        <td><span class="badge badge-{{ a.status|replace(' ', '') }}">{{ a.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty"><h3>No attendance records yet</h3>Check in above to start tracking.</div>
+  {% endif %}
+</div>
+{% endblock %}

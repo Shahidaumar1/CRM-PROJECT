@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Leave Requests — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Leave Requests</h1>
+    <div class="sub">{{ leaves|length }} request(s){% if not current_user.is_admin %} from you{% endif %}</div>
+  </div>
+  <a href="{{ url_for('add_leave') }}" class="btn btn-primary">+ Request Leave</a>
+</div>
+
+<div class="panel" style="padding:0;">
+  {% if leaves %}
+  <table class="data">
+    <thead>
+      <tr>
+        {% if current_user.is_admin %}<th>Employee</th>{% endif %}
+        <th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lv in leaves %}
+      <tr>
+        {% if current_user.is_admin %}<td><strong>{{ lv.user.name }}</strong></td>{% endif %}
+        <td>{{ lv.from_date.strftime('%d %b %Y') }}</td>
+        <td>{{ lv.to_date.strftime('%d %b %Y') }}</td>
+        <td>{{ lv.days }}</td>
+        <td>{{ lv.reason or '—' }}</td>
+        <td><span class="badge badge-{{ 'Active' if lv.status=='Approved' else ('Lost' if lv.status=='Rejected' else 'Pending') }}">{{ lv.status }}</span></td>
+        <td style="text-align:right; white-space:nowrap;">
+          {% if current_user.is_admin and lv.status == 'Pending' %}
+          <form method="POST" action="{{ url_for('decide_leave', leave_id=lv.id) }}" style="display:inline;">
+            <button type="submit" name="decision" value="Approved" class="btn btn-primary btn-sm">Approve</button>
+            <button type="submit" name="decision" value="Rejected" class="btn btn-ghost btn-sm" style="color:var(--brick);">Reject</button>
+          </form>
+          {% endif %}
+          {% if lv.user_id == current_user.id or current_user.is_admin %}
+          <form method="POST" action="{{ url_for('delete_leave', leave_id=lv.id) }}" style="display:inline;" onsubmit="return confirm('Remove this leave request?');">
+            <button type="submit" class="btn btn-ghost btn-sm">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty"><h3>No leave requests</h3>Submit a request when you need time off.</div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Payroll — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Payroll</h1>
+    <div class="sub">Salary calculated from attendance hours × hourly rate (or fixed monthly salary)</div>
+  </div>
+  <a href="{{ url_for('export_payroll', month=month) }}" class="btn">Export CSV</a>
+</div>
+
+<form class="filter-bar" method="GET">
+  <input type="month" name="month" value="{{ month }}" onchange="this.form.submit()">
+</form>
+
+<div class="panel" style="padding:0;">
+  <table class="data">
+    <thead>
+      <tr><th>Employee</th><th>Days Present</th><th>Hours Worked</th><th>Rate / Salary</th><th>Calculated Pay</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td class="name-cell"><strong>{{ row.employee.name }}</strong><span>{{ row.employee.designation or row.employee.role }}</span></td>
+        <td>{{ row.days_present }}</td>
+        <td>{{ row.total_hours }}</td>
+        <td>
+          {% if row.employee.monthly_salary %}
+            Rs {{ "{:,.0f}".format(row.employee.monthly_salary) }} / month
+          {% else %}
+            Rs {{ "{:,.0f}".format(row.employee.hourly_rate) }} / hour
+          {% endif %}
+        </td>
+        <td><strong>Rs {{ "{:,.0f}".format(row.calculated_pay) }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="sub">Set each employee's hourly rate or fixed monthly salary from the <a href="{{ url_for('employees') }}" style="color:var(--accent); font-weight:600;">Employees</a> page.</p>
+{% endblock %}

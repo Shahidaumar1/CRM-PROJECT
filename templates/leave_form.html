@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Request Leave — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Request Leave</h1>
+    <div class="sub">Tell your admin when you'll be away and why</div>
+  </div>
+</div>
+
+<div class="panel" style="max-width:560px;">
+  <form method="POST">
+    <div class="form-grid">
+      <div class="field">
+        <label>From *</label>
+        <input type="date" name="from_date" required>
+      </div>
+      <div class="field">
+        <label>To *</label>
+        <input type="date" name="to_date" required>
+      </div>
+      <div class="field full">
+        <label>Reason</label>
+        <textarea name="reason" placeholder="e.g. Family event, medical, etc."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Submit Request</button>
+      <a href="{{ url_for('leaves') }}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

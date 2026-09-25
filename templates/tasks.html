@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Tasks — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Tasks</h1>
+    <div class="sub">{{ tasks|length }} task(s){% if not current_user.is_admin %} assigned to you{% endif %}</div>
+  </div>
+  <a href="{{ url_for('add_task') }}" class="btn btn-primary">+ New Task</a>
+</div>
+
+<form class="filter-bar" method="GET">
+  <select name="status" onchange="this.form.submit()">
+    <option value="">All Statuses</option>
+    {% for s in statuses %}
+    <option value="{{ s }}" {% if status_filter==s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  {% if status_filter %}<a href="{{ url_for('tasks') }}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+</form>
+
+<div class="panel" style="padding:0;">
+  {% if tasks %}
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Task</th>
+        {% if current_user.is_admin %}<th>Employee</th>{% endif %}
+        <th>Time Limit</th><th>Time Spent</th><th>Due</th><th>Status</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tasks %}
+      <tr>
+        <td class="name-cell"><strong>{{ t.title }}</strong>{% if t.description %}<span>{{ t.description }}</span>{% endif %}</td>
+        {% if current_user.is_admin %}<td>{{ t.assignee.name }}</td>{% endif %}
+        <td>{{ t.time_limit_hours }} hr{% if t.time_limit_hours != 1 %}s{% endif %}</td>
+        <td>
+          {% if t.status == 'Completed' %}
+            {{ t.time_spent_hours }} hrs
+            {% if t.is_over_limit %}<span style="color:var(--brick); font-size:12px;"> (over limit)</span>{% endif %}
+          {% elif t.status == 'In Progress' %}
+            <span style="color:var(--accent);">running…</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>{{ t.due_date.strftime('%d %b') if t.due_date else '—' }}</td>
+        <td><span class="badge badge-{{ t.status|replace(' ', '') }}">{{ t.status }}</span></td>
+        <td style="text-align:right; white-space:nowrap;">
+          {% if t.status == 'Pending' and (t.assigned_to == current_user.id or current_user.is_admin) %}
+          <form method="POST" action="{{ url_for('start_task', task_id=t.id) }}" style="display:inline;">
+            <button type="submit" class="btn btn-sm">Start</button>
+          </form>
+          {% elif t.status == 'In Progress' and (t.assigned_to == current_user.id or current_user.is_admin) %}
+          <form method="POST" action="{{ url_for('complete_task', task_id=t.id) }}" style="display:inline;">
+            <button type="submit" class="btn btn-primary btn-sm">Complete</button>
+          </form>
+          {% endif %}
+          {% if current_user.is_admin or t.assigned_by == current_user.id %}
+          <form method="POST" action="{{ url_for('delete_task', task_id=t.id) }}" style="display:inline;" onsubmit="return confirm('Delete this task?');">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--brick);">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty"><h3>No tasks found</h3>Create a new task to get started.</div>
+  {% endif %}
+</div>
+{% endblock %}

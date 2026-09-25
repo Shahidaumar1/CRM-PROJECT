@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Register — SoftAccess CRM{% endblock %}
+{% block auth_content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="brand-mark">S</span>
+      <span class="name">SoftAccess CRM</span>
+    </div>
+    <h1>Create an account</h1>
+    <p class="sub">Set up your CRM to get started.</p>
+    <form method="POST">
+      <div class="field">
+        <label>Full name</label>
+        <input type="text" name="name" placeholder="Ali Raza" required autofocus>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@company.com" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required minlength="4">
+      </div>
+      <button type="submit" class="btn btn-primary">Create account</button>
+    </form>
+    <div class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Log in</a></div>
+  </div>
+</div>
+{% endblock %}

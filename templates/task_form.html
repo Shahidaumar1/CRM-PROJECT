@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}New Task — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>New Task</h1>
+    <div class="sub">Assign work and set a time limit</div>
+  </div>
+</div>
+
+<div class="panel" style="max-width:640px;">
+  <form method="POST">
+    <div class="form-grid single">
+      <div class="field">
+        <label>Task Title *</label>
+        <input type="text" name="title" required placeholder="e.g. Follow up with 5 leads">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea name="description" placeholder="What needs to be done..."></textarea>
+      </div>
+      {% if is_admin %}
+      <div class="field">
+        <label>Assign To *</label>
+        <select name="assigned_to" required>
+          <option value="">-- Select employee --</option>
+          {% for e in employees %}
+          <option value="{{ e.id }}">{{ e.name }}{% if e.designation %} — {{ e.designation }}{% endif %}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="field">
+        <label>Time Limit (hours) *</label>
+        <input type="number" step="0.5" min="0" name="time_limit_hours" required placeholder="e.g. 4">
+      </div>
+      <div class="field">
+        <label>Due Date</label>
+        <input type="date" name="due_date">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Add Task</button>
+      <a href="{{ url_for('tasks') }}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

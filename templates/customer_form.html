@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{% if customer %}Edit Customer{% else %}New Customer{% endif %} — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{% if customer %}Edit Customer{% else %}New Customer{% endif %}</h1>
+    <div class="sub">Fill in the customer's details</div>
+  </div>
+</div>
+
+<div class="panel" style="max-width:720px;">
+  <form method="POST">
+    <div class="form-grid">
+      <div class="field full">
+        <label>Name *</label>
+        <input type="text" name="name" required value="{{ customer.name if customer else '' }}">
+      </div>
+      <div class="field">
+        <label>Company</label>
+        <input type="text" name="company" value="{{ customer.company if customer else '' }}">
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select name="status">
+          {% for s in statuses %}
+          <option value="{{ s }}" {% if customer and customer.status==s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ customer.email if customer else '' }}">
+      </div>
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" name="phone" value="{{ customer.phone if customer else '' }}">
+      </div>
+      <div class="field full">
+        <label>Address</label>
+        <input type="text" name="address" value="{{ customer.address if customer else '' }}">
+      </div>
+      <div class="field full">
+        <label>Notes</label>
+        <textarea name="notes">{{ customer.notes if customer else '' }}</textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{% if customer %}Update{% else %}Add{% endif %}</button>
+      <a href="{{ url_for('customers') }}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}My Profile — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>My Profile</h1>
+    <div class="sub">{{ current_user.email }} · {{ current_user.role }}</div>
+  </div>
+</div>
+
+<div class="panel" style="max-width:520px;">
+  <form method="POST">
+    <div class="form-grid single">
+      <div class="field">
+        <label>Name</label>
+        <input type="text" name="name" value="{{ current_user.name }}" required>
+      </div>
+      <div class="field">
+        <label>Designation</label>
+        <input type="text" name="designation" value="{{ current_user.designation or '' }}">
+      </div>
+    </div>
+
+    <h2 style="font-size:15px; margin-top:24px; margin-bottom:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.4px;">Change Password</h2>
+    <div class="form-grid single">
+      <div class="field">
+        <label>Current Password</label>
+        <input type="password" name="current_password" placeholder="Required only if changing password">
+      </div>
+      <div class="field">
+        <label>New Password</label>
+        <input type="password" name="new_password" placeholder="Leave blank to keep your current password">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<p class="sub" style="max-width:520px;">Forgotten your password entirely and can't log in? Ask an Admin to reset it for you from the Employees page.</p>
+{% endblock %}

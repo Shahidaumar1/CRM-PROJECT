@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Welcome back, {{ current_user.name.split(' ')[0] }}</h1>
+    <div class="sub">Here's today's summary of your business</div>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <a href="{{ url_for('attendance') }}" class="btn {% if not my_attendance_today or not my_attendance_today.check_in %}btn-primary{% endif %}">
+      {% if my_attendance_today and my_attendance_today.check_in %}
+        {% if my_attendance_today.check_out %}Checked Out{% else %}Checked In · {{ my_attendance_today.check_in.strftime('%I:%M %p') }}{% endif %}
+      {% else %}
+        Check In Now
+      {% endif %}
+    </a>
+    <a href="{{ url_for('add_customer') }}" class="btn btn-primary">+ New Customer</a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">My Open Tasks</div>
+    <div class="value">{{ my_open_tasks }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Total Customers</div>
+    <div class="value">{{ total_customers }}</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="label">Leads</div>
+    <div class="value">{{ total_leads }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Active Customers</div>
+    <div class="value">{{ total_active }}</div>
+  </div>
+  <div class="stat-card accent">
+    <div class="label">Open Pipeline Value</div>
+    <div class="value">Rs {{ "{:,.0f}".format(open_value) }}</div>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="panel">
+    <h2>Won Deals — Last 6 Months</h2>
+    <canvas id="monthlyChart" height="160"></canvas>
+  </div>
+  <div class="panel">
+    <h2>Top Customers by Deal Value</h2>
+    {% if top_customer_labels %}
+    <canvas id="topCustomersChart" height="160"></canvas>
+    {% else %}
+    <div class="empty" style="padding:30px 0;">No deal data yet.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Sales Pipeline</h2>
+  <div class="pipeline">
+    {% for stage in stages %}
+    <div class="pipeline-col">
+      <div class="stage-name">{{ stage }}</div>
+      <div class="stage-count">{{ pipeline[stage].count }}</div>
+      <div class="stage-value">Rs {{ "{:,.0f}".format(pipeline[stage].value) }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="panel">
+    <h2>New Customers</h2>
+    {% if recent_customers %}
+      {% for c in recent_customers %}
+      <div class="info-row">
+        <span class="k"><a href="{{ url_for('customer_detail', customer_id=c.id) }}">{{ c.name }}</a> {% if c.company %}<span style="color:var(--ink-soft)">— {{ c.company }}</span>{% endif %}</span>
+        <span class="badge badge-{{ c.status }}">{{ c.status }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty"><h3>No customers yet</h3>Add your first customer to get started.</div>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Recent Activity</h2>
+    {% if recent_activities %}
+      <div class="timeline">
+        {% for a in recent_activities %}
+        <div class="timeline-item">
+          <div class="when">{{ a.created_at.strftime('%d %b, %I:%M %p') }} · <a href="{{ url_for('customer_detail', customer_id=a.customer_id) }}">{{ a.customer.name }}</a></div>
+          <div class="what">{{ a.note }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty"><h3>No activity yet</h3>Customer notes will show up here.</div>
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+  const monthLabels = {{ month_labels|tojson }};
+  const monthValues = {{ month_values|tojson }};
+  new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+      labels: monthLabels,
+      datasets: [{
+        label: 'Won Value (Rs)',
+        data: monthValues,
+        backgroundColor: '#2F6F5E',
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  {% if top_customer_labels %}
+  const custLabels = {{ top_customer_labels|tojson }};
+  const custValues = {{ top_customer_values|tojson }};
+  new Chart(document.getElementById('topCustomersChart'), {
+    type: 'doughnut',
+    data: {
+      labels: custLabels,
+      datasets: [{
+        data: custValues,
+        backgroundColor: ['#2F6F5E', '#C8792F', '#6B7680', '#B5473A', '#9FC7B8'],
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } } }
+    }
+  });
+  {% endif %}
+</script>
+{% endblock %}

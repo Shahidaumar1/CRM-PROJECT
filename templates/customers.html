@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Customers — SoftAccess CRM{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Customers</h1>
+    <div class="sub">{{ customers|length }} customer(s) found</div>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <a href="{{ url_for('export_customers') }}" class="btn">Export CSV</a>
+    <a href="{{ url_for('add_customer') }}" class="btn btn-primary">+ New Customer</a>
+  </div>
+</div>
+
+<form class="filter-bar" method="GET">
+  <input type="text" name="q" placeholder="Search by name, company or email..." value="{{ q }}">
+  <select name="status" onchange="this.form.submit()">
+    <option value="">All Statuses</option>
+    {% for s in statuses %}
+    <option value="{{ s }}" {% if status==s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-sm">Filter</button>
+  {% if q or status %}<a href="{{ url_for('customers') }}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+</form>
+
+<div class="panel" style="padding:0;">
+  {% if customers %}
+  <table class="data">
+    <thead>
+      <tr><th>Name</th><th>Contact</th><th>Status</th><th>Open Deals</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for c in customers %}
+      <tr class="row-link" onclick="window.location='{{ url_for('customer_detail', customer_id=c.id) }}'">
+        <td class="name-cell"><strong>{{ c.name }}</strong>{% if c.company %}<span>{{ c.company }}</span>{% endif %}</td>
+        <td>{{ c.email or '—' }}<br><span style="color:var(--ink-soft); font-size:13px;">{{ c.phone or '' }}</span></td>
+        <td><span class="badge badge-{{ c.status }}">{{ c.status }}</span></td>
+        <td>Rs {{ "{:,.0f}".format(c.open_deal_value) }}</td>
+        <td style="text-align:right;" onclick="event.stopPropagation()">
+          <a href="{{ url_for('edit_customer', customer_id=c.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <h3>No customers found</h3>
+    Add a new customer to get started.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
