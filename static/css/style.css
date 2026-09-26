@@ -238,13 +238,44 @@ body.no-sidebar{ background: var(--ink); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px){
+  html, body{ overflow-x:hidden; max-width:100%; }
   .app-shell{ flex-direction:column; }
-  .sidebar{ width:100%; height:auto; position:relative; flex-direction:row; align-items:center; padding:14px 16px; }
-  .side-nav{ flex-direction:row; }
-  .sidebar-foot{ display:none; }
-  .content{ padding: 20px; }
+  .sidebar{
+    width:100%; height:auto; position:sticky; top:0; z-index:40;
+    flex-direction:column; align-items:stretch; padding:12px 14px 8px; gap:8px;
+  }
+  .brand{ padding:0 0 4px; }
+
+  /* Nav becomes a single horizontally-scrollable strip instead of wrapping
+     or overflowing the page — this is what was pushing the whole layout
+     wider than the screen before. */
+  .side-nav{
+    flex-direction:row; flex-wrap:nowrap; gap:4px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    padding-bottom:2px; scrollbar-width:none;
+  }
+  .side-nav::-webkit-scrollbar{ display:none; }
+  .side-nav a{
+    flex-shrink:0; white-space:nowrap; padding:8px 10px; font-size:13.5px;
+  }
+
+  /* Footer (install button, profile, logout) stays visible on mobile too,
+     just laid out as a compact row instead of a tall column. */
+  .sidebar-foot{
+    display:flex; flex-direction:row; align-items:center; justify-content:space-between;
+    border-top:1px solid rgba(255,255,255,.12); padding-top:8px; gap:8px;
+  }
+  #installAppBtn{ width:auto; margin-bottom:0; white-space:nowrap; }
+  .user-chip{ padding:4px; }
+  .user-name{ max-width:80px; }
+
+  .content{ padding:16px; max-width:100%; }
   .stat-grid{ grid-template-columns: repeat(2,1fr); }
   .pipeline{ grid-template-columns: repeat(2,1fr); }
   .detail-grid{ grid-template-columns: 1fr; }
   .form-grid{ grid-template-columns: 1fr; }
+
+  /* Prevent any wide table/panel from stretching the page sideways */
+  .panel{ max-width:100%; overflow-x:auto; }
+  table.data{ min-width:520px; }
 }
