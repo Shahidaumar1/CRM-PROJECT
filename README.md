@@ -21,6 +21,13 @@ A complete, working Customer Relationship Management (CRM) web app — built wit
 
 The first person to register becomes Admin. To make someone else an Admin later, go to **Employees → Edit** and change their Role.
 
+## Use It as an App (PWA)
+This CRM is now a **Progressive Web App** — no Play Store, no separate app to build. Open the live site on a phone and:
+- **Android (Chrome):** tap the "📲 Install App" button in the sidebar, or Chrome's menu → "Install app"/"Add to Home Screen".
+- **iPhone (Safari):** tap the Share icon → "Add to Home Screen".
+
+It then opens full-screen with its own icon, like a native app, and loads instantly on repeat visits.
+
 ## More Features
 - **Leave Management** — employees submit leave requests; admins approve or reject them from the Leaves page.
 - **Profile & Password Change** — every user can update their own name and password from the Profile page (their avatar/name in the sidebar). If someone forgets their password entirely, an Admin can reset it from Employees → Edit.

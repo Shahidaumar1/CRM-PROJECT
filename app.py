@@ -833,6 +833,17 @@ def download_attachment(stored_name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], stored_name)
 
 
+@app.route("/service-worker.js")
+def service_worker():
+    # Served from the site root (not /static/) so its scope covers the whole
+    # app, not just the static folder — required for "Add to Home Screen" to
+    # control every page, not only static assets.
+    response = send_from_directory(app.static_folder, "service-worker.js")
+    response.headers["Service-Worker-Allowed"] = "/"
+    response.headers["Content-Type"] = "application/javascript"
+    return response
+
+
 @app.route("/attachments/<int:attachment_id>/delete", methods=["POST"])
 @login_required
 def delete_attachment(attachment_id):

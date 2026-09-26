@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}SoftAccess CRM{% endblock %}</title>
+
+<!-- PWA: makes the site installable as an app on phones/desktops -->
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#2F6F5E">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SoftAccess">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -58,6 +68,7 @@
       </a>
     </nav>
     <div class="sidebar-foot">
+      <button id="installAppBtn" class="btn btn-sm" style="display:none; width:100%; margin-bottom:10px; justify-content:center;">📲 Install App</button>
       <a href="{{ url_for('profile') }}" class="user-chip" style="border-radius:6px;">
         <span class="avatar">{{ current_user.name[0]|upper }}</span>
         <span class="user-name">{{ current_user.name }}</span>
@@ -91,5 +102,36 @@
   {% endwith %}
   {% block auth_content %}{% endblock %}
 {% endif %}
+
+<script>
+  // Register the service worker so the app can be "Added to Home Screen"
+  // and its shell (styles, icons) loads instantly on repeat visits.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/service-worker.js", { scope: "/" })
+        .catch((err) => console.log("Service worker registration failed:", err));
+    });
+  }
+
+  // Show a native "Install App" button when the browser says it's installable
+  // (Android/desktop Chrome & Edge). iOS Safari has no such event — there,
+  // people use Share -> "Add to Home Screen" manually instead.
+  let deferredInstallPrompt = null;
+  const installBtn = document.getElementById("installAppBtn");
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    if (installBtn) installBtn.style.display = "flex";
+  });
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      installBtn.style.display = "none";
+    });
+  }
+</script>
 </body>
 </html>
