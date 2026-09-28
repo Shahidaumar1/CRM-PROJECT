@@ -3,17 +3,19 @@
 // It does NOT cache dynamic pages like /customers or /dashboard, since that data
 // must always come from the server — this only speeds up and "app-ifies" the UI shell.
 
-const CACHE_NAME = "softaccess-crm-shell-v3";
+const CACHE_NAME = "softaccess-crm-shell-v4";
+const OFFLINE_URL = "/offline";
 const SHELL_ASSETS = [
   "/static/css/style.css",
   "/static/icons/icon-192.png",
   "/static/icons/icon-512.png",
   "/static/manifest.json",
 ];
+const PRECACHE = [...SHELL_ASSETS, OFFLINE_URL];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE))
   );
   self.skipWaiting();
 });
@@ -29,6 +31,12 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+
+  // Page navigations: go to the network, and if offline show the offline page.
+  if (event.request.mode === "navigate") {
+    event.respondWith(fetch(event.request).catch(() => caches.match(OFFLINE_URL)));
+    return;
+  }
 
   // Only handle GET requests for our own static shell assets.
   if (event.request.method !== "GET" || !SHELL_ASSETS.some((a) => url.pathname === a)) {

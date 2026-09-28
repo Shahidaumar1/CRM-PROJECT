@@ -833,6 +833,27 @@ def download_attachment(stored_name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], stored_name)
 
 
+@app.route("/manifest.json")
+def web_manifest():
+    response = send_from_directory(app.static_folder, "manifest.json")
+    response.headers["Content-Type"] = "application/manifest+json"
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
+@app.route("/offline")
+def offline_page():
+    return (
+        "<!DOCTYPE html><html><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>Offline</title></head>"
+        "<body style='font-family:sans-serif;text-align:center;padding:60px 20px;background:#F3F4EF;color:#16202A'>"
+        "<h2>You're offline</h2><p>SoftAccess CRM needs an internet connection. Please reconnect and try again.</p>"
+        "<button onclick='location.reload()' style='padding:10px 18px;border:0;border-radius:6px;background:#2F6F5E;color:#fff'>Retry</button>"
+        "</body></html>"
+    )
+
+
 @app.route("/service-worker.js")
 def service_worker():
     # Served from the site root (not /static/) so its scope covers the whole
