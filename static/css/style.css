@@ -61,6 +61,7 @@ h1,h2,h3{ font-family: var(--font-display); font-weight:600; margin:0 0 4px; col
 .brand-name{ font-family: var(--font-display); font-size:19px; font-weight:600; letter-spacing:.2px; }
 .brand-name em{ font-style:normal; color: #9FC7B8; }
 
+.menu-toggle{ display:none; }
 .side-nav{ display:flex; flex-direction:column; gap:2px; flex:1; }
 .side-nav a{
   display:flex; align-items:center; gap:11px;
@@ -246,28 +247,28 @@ body.no-sidebar{ background: var(--ink); }
   }
   .brand{ padding:0 0 4px; }
 
-  /* Nav becomes a single horizontally-scrollable strip instead of wrapping
-     or overflowing the page — this is what was pushing the whole layout
-     wider than the screen before. */
-  .side-nav{
-    flex-direction:row; flex-wrap:nowrap; gap:4px;
-    overflow-x:auto; -webkit-overflow-scrolling:touch;
-    padding-bottom:2px; scrollbar-width:none;
+  /* Hamburger menu: brand row + 3-line button; nav and footer are hidden
+     until the button is tapped. */
+  .brand{ padding:0; }
+  .menu-toggle{
+    display:flex; align-items:center; justify-content:center;
+    margin-left:auto; width:42px; height:42px;
+    background:rgba(255,255,255,.08); color:#fff;
+    border:1px solid rgba(255,255,255,.15); border-radius:8px; cursor:pointer;
   }
-  .side-nav::-webkit-scrollbar{ display:none; }
-  .side-nav a{
-    flex-shrink:0; white-space:nowrap; padding:8px 10px; font-size:13.5px;
+  .side-nav, .sidebar-foot{ display:none; }
+  .sidebar.open .side-nav{
+    display:flex; flex-direction:column; gap:2px; padding-top:6px;
+    max-height:60vh; overflow-y:auto;
   }
-
-  /* Footer (install button, profile, logout) stays visible on mobile too,
-     just laid out as a compact row instead of a tall column. */
-  .sidebar-foot{
-    display:flex; flex-direction:row; align-items:center; justify-content:space-between;
-    border-top:1px solid rgba(255,255,255,.12); padding-top:8px; gap:8px;
+  .sidebar.open .side-nav a{ padding:12px; font-size:15px; }
+  .sidebar.open .sidebar-foot{
+    display:flex; flex-direction:column; align-items:stretch;
+    border-top:1px solid rgba(255,255,255,.12); padding-top:10px; gap:6px;
   }
-  #installAppBtn{ width:auto; margin-bottom:0; white-space:nowrap; }
-  .user-chip{ padding:4px; }
-  .user-name{ max-width:80px; }
+  #installAppBtn{ width:100%; }
+  .user-chip{ padding:4px 6px; }
+  .user-name{ max-width:none; }
 
   .content{ padding:16px; max-width:100%; }
   .stat-grid{ grid-template-columns: repeat(2,1fr); }

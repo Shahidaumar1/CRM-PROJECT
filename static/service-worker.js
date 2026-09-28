@@ -3,7 +3,7 @@
 // It does NOT cache dynamic pages like /customers or /dashboard, since that data
 // must always come from the server — this only speeds up and "app-ifies" the UI shell.
 
-const CACHE_NAME = "softaccess-crm-shell-v2";
+const CACHE_NAME = "softaccess-crm-shell-v3";
 const SHELL_ASSETS = [
   "/static/css/style.css",
   "/static/icons/icon-192.png",

@@ -25,8 +25,11 @@
     <div class="brand">
       <span class="brand-mark">S</span>
       <span class="brand-name">SoftAccess <em>CRM</em></span>
+      <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
     </div>
-    <nav class="side-nav">
+    <nav class="side-nav" id="sideNav">
       <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint=='dashboard' %}active{% endif %}">
         <svg viewBox="0 0 20 20"><path d="M3 10.5 10 4l7 6.5M5 9v7h10V9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Dashboard
@@ -68,7 +71,7 @@
       </a>
     </nav>
     <div class="sidebar-foot">
-      <button id="installAppBtn" class="btn btn-sm" style="display:none; width:100%; margin-bottom:10px; justify-content:center;">📲 Install App</button>
+      <button type="button" id="installAppBtn" class="btn btn-sm" style="width:100%; margin-bottom:10px; justify-content:center;">📲 Install App</button>
       <a href="{{ url_for('profile') }}" class="user-chip" style="border-radius:6px;">
         <span class="avatar">{{ current_user.name[0]|upper }}</span>
         <span class="user-name">{{ current_user.name }}</span>
@@ -113,23 +116,43 @@
     });
   }
 
-  // Show a native "Install App" button when the browser says it's installable
-  // (Android/desktop Chrome & Edge). iOS Safari has no such event — there,
-  // people use Share -> "Add to Home Screen" manually instead.
+  // ---- Install App button ----
+  // Chrome fires "beforeinstallprompt" only when the site is installable and NOT
+  // in Incognito / already installed. So the button is always shown; if the
+  // browser hasn't given us the native prompt, we show manual instructions.
   let deferredInstallPrompt = null;
   const installBtn = document.getElementById("installAppBtn");
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+
+  if (isStandalone && installBtn) installBtn.style.display = "none";
+
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
     deferredInstallPrompt = event;
-    if (installBtn) installBtn.style.display = "flex";
   });
+  window.addEventListener("appinstalled", () => {
+    if (installBtn) installBtn.style.display = "none";
+  });
+
   if (installBtn) {
     installBtn.addEventListener("click", async () => {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      installBtn.style.display = "none";
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      } else {
+        alert("To install this app:\n\n• Android (Chrome): menu ⋮ → Install app / Add to Home screen\n• iPhone (Safari): Share → Add to Home Screen\n• Desktop Chrome/Edge: install icon in the address bar\n\nNote: installing does not work in Incognito/Private mode.");
+      }
+    });
+  }
+
+  // ---- Mobile hamburger menu ----
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebarEl = document.querySelector(".sidebar");
+  if (menuToggle && sidebarEl) {
+    menuToggle.addEventListener("click", () => {
+      const open = sidebarEl.classList.toggle("open");
+      menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
     });
   }
 </script>
